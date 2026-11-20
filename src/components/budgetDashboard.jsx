@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import ChangeDate from './changeDate';
+import TableTransaction from './tableTransaction';
 import { Chart } from "react-google-charts";
 
 
 export default function BudgetDashboard( { transactions } ) {
 
     const[currentDate, setCurrentDate] = useState(new Date(2024, 0));
-    const[currentPage, setCurrentPage] = useState(0);
-
+    
     const newTransactions = transactions.filter((t) => new Date(t.date).getMonth() == currentDate.getMonth() && new Date(t.date).getFullYear() == currentDate.getFullYear());
     const sortedTransactions = newTransactions.sort((a, b) => {
         const aDate = new Date(a.date)
@@ -19,8 +19,6 @@ export default function BudgetDashboard( { transactions } ) {
     const[transactionsByMonth, setTransactionsByMonth] = useState(sortedTransactions);
     const[transactionsByMonthByCategory, setTransactionsByMonthByCategory] = useState(Object.groupBy(newTransactions, transaction => transaction.category));
     const[totalAmountMonth, setTotalAmountMonth] = useState(newTransactions.reduce((total, transaction)=>  total + transaction.amount,0));
-
-    const nombrePage = Math.round(newTransactions.length/5);
 
     const getTransactionsByMonth = ( value ) => {
         const newDate = new Date(currentDate.getFullYear(),currentDate.getMonth() + value);
@@ -102,63 +100,7 @@ export default function BudgetDashboard( { transactions } ) {
                         alignItems: "center",
                         gap: "20px"
                     }}>
-
-                        <table style={{
-                            width: "100%",
-                            borderCollapse: "collapse"
-                        }}>
-                            <thead>
-                                <tr>
-                                    <th>PAYEE</th>
-                                    <th>DATE</th>
-                                    <th>AMOUNT</th>
-                                    <th>CATEGORY</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {transactionsByMonth
-                                    .slice(currentPage * 5, currentPage * 5 + 5)
-                                    .map((t, i) => (
-                                        <tr key={t.date + t.category + t.amount}>
-                                            <th>{t.payee}</th>
-                                            <td>{t.date}</td>
-                                            <td>{t.amount}</td>
-                                            <td>{t.category}</td>
-                                        </tr>
-                                    ))
-                                }
-                            </tbody>
-                        </table>
-
-                        <div style={{
-                            display: "flex",
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            gap: "12px"
-                        }}>
-                            {Array(nombrePage).fill().map((a, i) => (
-                                <button
-                                    key={i}
-                                    style={{
-                                        border: "none",
-                                        padding: "6px 12px",
-                                        textDecoration: "none",
-                                        borderRadius: "5px",
-                                        backgroundColor: currentPage === i ? "#333" : "#eee",
-                                        color: currentPage === i ? "white" : "#333",
-                                        cursor: "pointer"
-                                    }}
-                                    onClick={()=>{
-                                        setCurrentPage(i);
-                                    }} 
-                                >
-                                    {i + 1}
-                                </button>
-                            ))}
-                        </div>
-
+                        <TableTransaction tableValue={transactionsByMonth}></TableTransaction>
                     </div>
                 </div>}
             </div>
